@@ -10,7 +10,7 @@ public class UserInfo implements Serializable{
 	private String pwd;
 	
 
-	public UserInfo() {
+	public UserInfo(String id , String pwd) {
 		id = null;
 		pwd = null;
 	}

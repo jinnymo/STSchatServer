@@ -17,5 +17,8 @@ public class StatusCode implements Serializable{
 		this.statusMessage = statusMessage;
 	}
 	
-	
+	@Override
+	public String toString() {
+		return "code : "+code+" 메세지 : "+statusMessage;
+	}
 }
