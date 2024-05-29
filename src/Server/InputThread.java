@@ -17,9 +17,16 @@ public class InputThread implements Runnable {
 	private UserStaus userStaus;
 	private Vector<UserStaus> usersStaus;
 
+	Thread thread;
+
 	public InputThread(Socket socket, Main mContext) {
 		this.usersStaus = mContext.usersStatus;
 		this.socket = socket;
+
+	}
+
+	@Override
+	public void run() {
 		if (usersStaus.size() > 0) {
 			for (UserStaus userStaus : usersStaus) {
 				if (userStaus.getIp().equals(socket.getInetAddress().toString())) {
@@ -43,11 +50,6 @@ public class InputThread implements Runnable {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	@Override
-	public void run() {
-
 		// System.out.println(socket.getInetAddress());
 		System.out.println("연결굳");
 
@@ -77,16 +79,45 @@ public class InputThread implements Runnable {
 				if (userStaus.getIp().equals(socket.getInetAddress().toString())) {
 					// 이미 등록된 유저
 					System.out.println("기존 등록 유저");
-					new Thread(new OutputThread(1, new StatusCode(601, "데이터가 있는 유저입니다." + " 기존 데이터 사용"),
-							userStaus.getOos())).start();
+					thread = new Thread(new OutputThread(1, new StatusCode(601, "데이터가 있는 유저입니다." + " 기존 데이터 사용"),
+							userStaus.getOos()));
+					thread.start();
+					try {
+						thread.join();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 
 			}
+			System.out.println("처음 온걸 환영합닏다.");
+			userStaus.setId(objectMessage.getUserInfo().getId());
+			userStaus.setPwd(objectMessage.getUserInfo().getPwd());
+			usersStaus.add(userStaus);
+			thread = new Thread(new OutputThread(1, new StatusCode(600, "신규 유저입니다."), userStaus.getOos()));
+			thread.start();
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else {
 			System.out.println("처음 온걸 환영합닏다.");
+			userStaus.setId(objectMessage.getUserInfo().getId());
+			userStaus.setPwd(objectMessage.getUserInfo().getPwd());
 			usersStaus.add(userStaus);
-			new Thread(new OutputThread(1, new StatusCode(600, "신규 유저입니다."), userStaus.getOos())).start();
+			thread = new Thread(new OutputThread(1, new StatusCode(600, "신규 유저입니다."), userStaus.getOos()));
+			thread.start();
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+
 		upDateUser();
 	}
 
@@ -96,6 +127,7 @@ public class InputThread implements Runnable {
 			if (userStaus.getOos() != null) {
 				String id = userStaus.getId();
 				String pwd = userStaus.getPwd();
+				System.out.println(id);
 				new Thread(new OutputThread(2, new UserInfo(id, pwd), this.userStaus.getOos())).start();
 				System.out.println("456");
 			}

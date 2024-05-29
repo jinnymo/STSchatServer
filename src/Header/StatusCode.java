@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StatusCode implements Serializable{
-	private static final long serialVersionUID = 1L;//직렬화 버전 UID //L접미사 롱타입
+	private static final long serialVersionUID = 2L;//직렬화 버전 UID //L접미사 롱타입
 	private int code;
 	private String statusMessage;
 	
