@@ -4,26 +4,30 @@ import java.io.Serializable;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class ObjectMessage implements Serializable {
 
-	private static final long serialVersionUID = 2L;// 직렬화 버전 UID //L접미사 롱타입
-	private UserInfo userInfo;
-	private StatusCode statusCode;
-	private int code1;
+	private static final long serialVersionUID = 3L;// 직렬화 버전 UID //L접미사 롱타입
+	private String name;
+	private String[] target;
+	private String message;
 
-	public ObjectMessage(int code1, UserInfo userInfo) {
-		this.code1 = code1;
-		this.userInfo = userInfo;
+	public ObjectMessage(String name, String[] target, String message) {
+		this.name = name;
+		this.target = target;
+		this.message = message;
 
 	}
-
-	public ObjectMessage(int code1, StatusCode statusCode) {
-		this.code1 = code1;
-
-		this.statusCode = statusCode;
+	public ObjectMessage(String name) {
+		this.name = name;
 	}
+	public ObjectMessage(String[] users) {
+		this.target = users;
+	}
+
 
 }
