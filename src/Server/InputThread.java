@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.Vector;
 
 import Header.ObjectMessage;
@@ -71,23 +72,66 @@ public class InputThread implements Runnable {
 	}
 
 	private void messagePush() {
-		String[] targets;
-		if ((targets = userData.getTarget()) != null) {
-			for (String targetName : targets) {
-				if (userData.getName().equals(targetName)) {// 타켓 유저한테만 푸시
-					// 여기서 푸시
+		String name = userData.getName();
+		String[] targets = userData.getTarget();
+		String message = userData.getMessage();
 
+		if (name != null && targets != null && !message.isEmpty()) {
+
+			// 여기서 푸시
+			chatMessagePush(name, targets, message);
+
+		} else if (name != null && targets != null && message.isEmpty()) {
+			// targets == null 이면 처음 접속 유저 현재 유저목록 푸시
+			addRoom(targets);
+
+		} else if (name != null && targets == null && message.isEmpty()) {// targets == null 이면 처음 접속 유저 현재 유저목록 푸시
+			upDateUser();
+		}
+
+	}
+
+	private void chatMessagePush(String name, String[] targets, String message) {
+
+		for (UserData userData2 : userDatas) {
+			for (int i = 0; i < targets.length; i++) {
+				if (targets[i].toString().equals(userData2.getName())) {
+					Thread thread = new Thread(
+							new OutputMessage(new ObjectMessage(name, targets, message), userData2.getOos()));
+					thread.start();
+					try {
+						thread.join();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
-		} else {// targets == null 이면 처음 접속 유저 현재 유저목록 푸시
-			upDateUser();
+		}
+	}
+
+	private void addRoom(String[] targets) {
+
+		for (UserData userData2 : userDatas) {
+			for (int i = 0; i < targets.length; i++) {
+				if (targets[i].toString().equals(userData2.getName())) {
+					Thread thread = new Thread(new OutputMessage(new ObjectMessage(targets, ""), userData2.getOos()));
+					thread.start();
+					try {
+						thread.join();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 
 	}
 
 	private void upDateUser() {
 		String[] users = new String[userDatas.size()];
-		
+
 		for (UserData userData2 : userDatas) {
 			ObjectOutputStream oos2 = userData2.getOos();
 			for (int i = 0; i < userDatas.size(); i++) {
@@ -130,116 +174,5 @@ public class InputThread implements Runnable {
 
 	}
 
-//	
-//		
-//		
-//		if (usersStaus.size() > 0) {
-//			for (UserStaus userStaus : usersStaus) {
-//				if (userStaus.getIp().equals(socket.getInetAddress().toString())) {
-//					this.userStaus = userStaus;
-//					try {
-//						userStaus.setOos(new ObjectOutputStream(socket.getOutputStream()));
-//						System.out.println(userStaus.getOos().toString());
-//					} catch (IOException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//				}
-//			}
-//			userStaus = new UserStaus();
-//			userStaus.setIp(socket.getInetAddress().toString());
-//			try {
-//				userStaus.setOos(new ObjectOutputStream(socket.getOutputStream()));
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		} else {
-//			userStaus = new UserStaus();
-//			userStaus.setIp(socket.getInetAddress().toString());
-//			try {
-//				userStaus.setOos(new ObjectOutputStream(socket.getOutputStream()));
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
-//		// System.out.println(socket.getInetAddress());
-//		System.out.println("연결굳");
-//
-//		try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
-//			ObjectMessage objectMessage;
-//			String id = null;
-//			while ((objectMessage = (ObjectMessage) ois.readObject()) != null) {
-//				System.out.println("asdf");
-//				newUserConnect(objectMessage);
-//
-//			}
-//
-//		} catch (Exception e) {
-//			// 유저 커넥 끊김 캐치 부분
-//			e.printStackTrace();
-//			upDateUser();
-//		}
-
-//
-//	private void newUserConnect(ObjectMessage objectMessage) {
-//		// TODO Auto-generated method stub
-//
-//		if (objectMessage.getUserInfo() != null && usersStaus.size() > 0) {
-//
-//			for (UserStaus userStaus : usersStaus) {
-//				if (userStaus.getIp().equals(socket.getInetAddress().toString())) {
-//					// 이미 등록된 유저
-//					System.out.println("기존 등록 유저");
-//					pushMessageSC(1, 601, "데이터가 있는 유저입니다." + " 기존 데이터 사용", userStaus);
-//				}
-//
-//			}
-//
-//			System.out.println("처음 온걸 환영합닏다.");
-//			userStaus.setId(objectMessage.getUserInfo().getId());
-//			userStaus.setPwd(objectMessage.getUserInfo().getPwd());
-//			usersStaus.add(userStaus);
-//			pushMessageSC(1, 600, "신규 유저입니다.", userStaus);
-//
-//		} else {
-//			System.out.println("처음 온걸 환영합닏다1.");
-//			userStaus.setId(objectMessage.getUserInfo().getId());
-//			userStaus.setPwd(objectMessage.getUserInfo().getPwd());
-//			usersStaus.add(userStaus);
-//			pushMessageSC(1, 600, "신규 유저입니다.", userStaus);
-//
-//		}
-//
-//		upDateUser();
-//	}
-//
-//	public void upDateUser() {
-//		for (UserStaus userStaus : usersStaus) {
-//			System.out.println("sdf");
-//			if (userStaus.getOos() != null) {
-//				String id = userStaus.getId();
-//				String pwd = "테스트";// userStaus.getPwd();
-//				System.out.println(id);
-//				pushMessageUI(2, id, pwd, userStaus);
-//				// 싱크로 나이즈드 체크 하기 여기서 에러나는거 같음
-//
-//				System.out.println("456");
-//			}
-//		}
-//	}
-
-	public void removeUser() {
-
-	}
-
-	public void pushMessageSC(int code, int returncode, String msg, UserStaus userStaus) {
-		new Thread(new OutputThread(code, new StatusCode(returncode, msg), userStaus, mContext)).start();
-	}
-
-	public void pushMessageUI(int code, String id, String pwd, UserStaus userStaus) {
-		new Thread(new OutputThread(code, new UserInfo(id, pwd), userStaus, mContext)).start();
-	}
 
 }

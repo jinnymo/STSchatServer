@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.util.Vector;
 
 public class Main {
-	private static final int PORT = 5000;
+	private static final int PORT = 5002;
 	static Vector<UserData> userDatas = new Vector<>();
 	
 	

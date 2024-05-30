@@ -19,7 +19,7 @@ public class ObjectMessage implements Serializable {
 	public ObjectMessage(String name, String[] target, String message) {
 		this.name = name;
 		this.target = target;
-		this.message = message;
+		this.message = message; 
 
 	}
 	public ObjectMessage(String name) {
@@ -28,6 +28,9 @@ public class ObjectMessage implements Serializable {
 	public ObjectMessage(String[] users) {
 		this.target = users;
 	}
-
+	public ObjectMessage(String[] users, String message) {
+		this.target = users;
+		this.message = message;
+	}
 
 }
