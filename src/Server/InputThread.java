@@ -4,12 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Iterator;
 import java.util.Vector;
 
 import Header.ObjectMessage;
-import Header.StatusCode;
-import Header.UserInfo;
 
 public class InputThread implements Runnable {
 
@@ -43,31 +40,23 @@ public class InputThread implements Runnable {
 					this.userData = userData;
 				}
 			}
-
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 			ObjectMessage objectMessage;
 			while ((objectMessage = (ObjectMessage) ois.readObject()) != null) {
-				System.out.println("사용자로부터 데이터 받음");
 				userData.setName(objectMessage.getName());
 				userData.setTarget(objectMessage.getTarget());
 				userData.setMessage(objectMessage.getMessage());
-
 				System.out.println(userData.toString());
-				// newUserConnect(objectMessage);
 				messagePush();
 			}
 
 		} catch (Exception e) {
-			// 유저 커넥 끊김 캐치 부분
 			e.printStackTrace();
 			userDatas.remove(userData);
 			upDateUser();
-			// upDateUser();
 		}
 	}
 
@@ -75,29 +64,22 @@ public class InputThread implements Runnable {
 		String name = userData.getName();
 		String[] targets = userData.getTarget();
 		String message = userData.getMessage();
-
 		if (name != null && targets != null && !message.isEmpty()) {
-
-			// 여기서 푸시
 			chatMessagePush(name, targets, message);
-
 		} else if (name != null && targets != null && message.isEmpty()) {
-			// targets == null 이면 처음 접속 유저 현재 유저목록 푸시
 			addRoom(targets);
-
 		} else if (name != null && targets == null && message.isEmpty()) {// targets == null 이면 처음 접속 유저 현재 유저목록 푸시
 			upDateUser();
 		}
-
 	}
 
 	private void chatMessagePush(String name, String[] targets, String message) {
-
 		for (UserData userData2 : userDatas) {
 			for (int i = 0; i < targets.length; i++) {
 				if (targets[i].toString().equals(userData2.getName())) {
 					Thread thread = new Thread(
-							new OutputMessage(new ObjectMessage(name, targets, message), userData2.getOos()));
+							new OutputMessage(
+									new ObjectMessage(name, targets, message), userData2.getOos()));
 					thread.start();
 					try {
 						thread.join();
@@ -115,7 +97,8 @@ public class InputThread implements Runnable {
 		for (UserData userData2 : userDatas) {
 			for (int i = 0; i < targets.length; i++) {
 				if (targets[i].toString().equals(userData2.getName())) {
-					Thread thread = new Thread(new OutputMessage(new ObjectMessage(targets, ""), userData2.getOos()));
+					Thread thread = new Thread(new OutputMessage(
+							new ObjectMessage(targets, ""), userData2.getOos()));
 					thread.start();
 					try {
 						thread.join();
@@ -131,7 +114,6 @@ public class InputThread implements Runnable {
 
 	private void upDateUser() {
 		String[] users = new String[userDatas.size()];
-
 		for (UserData userData2 : userDatas) {
 			ObjectOutputStream oos2 = userData2.getOos();
 			for (int i = 0; i < userDatas.size(); i++) {
@@ -145,9 +127,7 @@ public class InputThread implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
-
 	}
 
 	public class OutputMessage implements Runnable {
@@ -158,7 +138,6 @@ public class InputThread implements Runnable {
 			this.objectMessage = objectMessage;
 			this.oos2 = oos2;
 		}
-
 		@Override
 		public void run() {
 

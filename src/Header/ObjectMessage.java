@@ -11,7 +11,7 @@ import lombok.ToString;
 @ToString
 public class ObjectMessage implements Serializable {
 
-	private static final long serialVersionUID = 3L;// 직렬화 버전 UID //L접미사 롱타입
+	private static final long serialVersionUID = 3L;
 	private String name;
 	private String[] target;
 	private String message;
