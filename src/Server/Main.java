@@ -17,7 +17,7 @@ public class Main {
 				Socket socket = serverSocket.accept();
 				System.out.println(socket.getInetAddress() + " 접속");
 				new Thread(new InputThread(socket, MainService,userDatas)).start();
-			}
+			} 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
